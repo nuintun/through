@@ -5,9 +5,9 @@
 'use strict';
 
 var is = require('is');
-var Transform = Stream.Transform;
 var extend = require('@nuintun/extend');
 var Stream = require('readable-stream');
+var Transform = Stream.Transform;
 var inherits = require('util').inherits;
 
 /**
