@@ -1,7 +1,3 @@
-/**
- * Created by nuintun on 2015/9/25.
- */
-
 'use strict';
 
 var is = require('is');
@@ -12,31 +8,33 @@ var inherits = require('util').inherits;
 
 /**
  * DestroyableTransform
+ *
  * @param options
  * @constructor
  */
-function DestroyableTransform(options){
+function DestroyableTransform(options) {
   Transform.call(this, options);
 
-  // destroyed flag
+  // Destroyed flag
   this._destroyed = false;
 }
 
-// inherits
+// Inherits
 inherits(DestroyableTransform, Transform);
 
 /**
  * destroy
+ *
  * @param error
  */
-DestroyableTransform.prototype.destroy = function (error){
+DestroyableTransform.prototype.destroy = function(error) {
   if (this._destroyed) return;
 
   this._destroyed = true;
 
   var self = this;
 
-  process.nextTick(function (){
+  process.nextTick(function() {
     if (error) self.emit('error', error);
 
     self.emit('close');
@@ -44,23 +42,25 @@ DestroyableTransform.prototype.destroy = function (error){
 };
 
 /**
- * a noop _transform function
+ * A noop _transform function
+ *
  * @param chunk
  * @param encoding
  * @param next
  */
-function noop(chunk, encoding, next){
+function noop(chunk, encoding, next) {
   next(null, chunk);
 }
 
 /**
- * create a new export function, used by both the main export and
+ * Create a new export function, used by both the main export and
  * the .ctor export, contains common logic for dealing with arguments
+ *
  * @param construct
  * @returns {Function}
  */
-function through(construct){
-  return function (options, transform, flush){
+function through(construct) {
+  return function(options, transform, flush) {
     if (is.fn(options)) {
       flush = transform;
       transform = options;
@@ -75,9 +75,9 @@ function through(construct){
 }
 
 /**
- * exports module
+ * Exports module
  */
-module.exports = through(function (options, transform, flush){
+module.exports = through(function(options, transform, flush) {
   var stream = new DestroyableTransform(extend({ objectMode: true, highWaterMark: 16 }, options));
 
   stream._transform = transform;
