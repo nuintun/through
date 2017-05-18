@@ -4,7 +4,6 @@ var is = require('is');
 var extend = require('@nuintun/extend');
 var Stream = require('readable-stream');
 var Transform = Stream.Transform;
-var inherits = require('util').inherits;
 
 /**
  * DestroyableTransform
@@ -19,8 +18,8 @@ function DestroyableTransform(options) {
   this._destroyed = false;
 }
 
-// Inherits
-inherits(DestroyableTransform, Transform);
+// extend
+DestroyableTransform.prototype = Object.create(Transform.prototype, { constructor: { value: DestroyableTransform } });
 
 /**
  * destroy
