@@ -1,9 +1,31 @@
+/*!
+ * through
+ * Version: 0.0.1
+ * Date: 2017/05/19
+ * https://github.com/nuintun/through
+ * https://github.com/rvagg/through2
+ *
+ * This is licensed under the MIT License (MIT).
+ * For details, see: https://github.com/nuintun/through/blob/master/LICENSE
+ */
+
 'use strict';
 
-var is = require('is');
-var extend = require('@nuintun/extend');
 var Stream = require('readable-stream');
 var Transform = Stream.Transform;
+
+var undef = void(0);
+var toString = Object.prototype.toString;
+
+/**
+ * Is function
+ *
+ * @param {any} value
+ * @returns {Boolean}
+ */
+function isFunction(value) {
+  return toString.call(value) === '[object Function]';
+}
 
 /**
  * DestroyableTransform
@@ -12,10 +34,12 @@ var Transform = Stream.Transform;
  * @constructor
  */
 function DestroyableTransform(options) {
-  Transform.call(this, options);
+  var context = this;
+
+  Transform.call(context, options);
 
   // Destroyed flag
-  this._destroyed = false;
+  context._destroyed = false;
 }
 
 // extend
@@ -27,16 +51,16 @@ DestroyableTransform.prototype = Object.create(Transform.prototype, { constructo
  * @param error
  */
 DestroyableTransform.prototype.destroy = function(error) {
-  if (this._destroyed) return;
+  var context = this;
 
-  this._destroyed = true;
+  if (context._destroyed) return;
 
-  var self = this;
+  context._destroyed = true;
 
   process.nextTick(function() {
-    if (error) self.emit('error', error);
+    if (error) context.emit('error', error);
 
-    self.emit('close');
+    context.emit('close');
   })
 };
 
@@ -52,24 +76,24 @@ function noop(chunk, encoding, next) {
 }
 
 /**
- * Create a new export function, used by both the main export and
- * the .ctor export, contains common logic for dealing with arguments
+ * Create a new export function, used by both the main export,
+ * contains common logic for dealing with arguments
  *
  * @param construct
  * @returns {Function}
  */
 function through(construct) {
   return function(options, transform, flush) {
-    if (is.fn(options)) {
+    if (isFunction(options)) {
       flush = transform;
       transform = options;
       options = {};
     }
 
-    if (!is.fn(transform)) transform = noop;
-    if (!is.fn(flush)) flush = null;
+    if (!isFunction(transform)) transform = noop;
+    if (!isFunction(flush)) flush = null;
 
-    return construct(options, transform, flush);
+    return construct(options || {}, transform, flush);
   }
 }
 
@@ -77,7 +101,15 @@ function through(construct) {
  * Exports module
  */
 module.exports = through(function(options, transform, flush) {
-  var stream = new DestroyableTransform(extend({ objectMode: true, highWaterMark: 16 }, options));
+  if (options.objectMode === undef) {
+    options.objectMode = true;
+  }
+
+  if (options.highWaterMark === undef) {
+    options.highWaterMark = 16;
+  }
+
+  var stream = new DestroyableTransform(options);
 
   stream._transform = transform;
 

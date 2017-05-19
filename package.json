@@ -24,9 +24,7 @@
     "transform"
   ],
   "dependencies": {
-    "is": "^3.2.1",
-    "readable-stream": "^2.2.9",
-    "@nuintun/extend": "https://github.com/nuintun/extend/archive/master.tar.gz"
+    "readable-stream": "^2.2.9"
   },
   "readmeFilename": "README.md"
 }
