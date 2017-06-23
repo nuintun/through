@@ -24,7 +24,7 @@
     "transform"
   ],
   "dependencies": {
-    "readable-stream": "^2.2.11"
+    "readable-stream": "^2.3.2"
   },
   "readmeFilename": "README.md"
 }
