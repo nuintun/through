@@ -61,7 +61,7 @@ DestroyableTransform.prototype.destroy = function(error) {
     if (error) context.emit('error', error);
 
     context.emit('close');
-  })
+  });
 };
 
 /**
