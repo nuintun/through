@@ -15,6 +15,9 @@
     "url": "https://github.com/nuintun/through/issues",
     "email": "nuintun@qq.com"
   },
+  "engines": {
+    "node": ">=4.0.0"
+  },
   "license": "MIT",
   "main": "index",
   "keywords": [
@@ -23,8 +26,5 @@
     "through",
     "transform"
   ],
-  "dependencies": {
-    "readable-stream": "^2.3.3"
-  },
   "readmeFilename": "README.md"
 }
