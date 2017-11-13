@@ -41,6 +41,8 @@ class DestroyableTransform extends Transform {
    * @param {Object} options
    */
   constructor(options) {
+    super(options);
+
     this._destroyed = false;
   }
 
