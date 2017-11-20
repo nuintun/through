@@ -9,7 +9,7 @@
 const Stream = require('stream');
 const Transform = Stream.Transform;
 
-const undef = void(0);
+const undef = void 0;
 const toString = Object.prototype.toString;
 
 /**
@@ -79,7 +79,7 @@ function through(construct) {
     if (!isFunction(flush)) flush = null;
 
     return construct(options || {}, transform, flush);
-  }
+  };
 }
 
 /**

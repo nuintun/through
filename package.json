@@ -20,11 +20,6 @@
   },
   "license": "MIT",
   "main": "index",
-  "keywords": [
-    "stream",
-    "streams",
-    "through",
-    "transform"
-  ],
+  "keywords": ["stream", "streams", "through", "transform"],
   "readmeFilename": "README.md"
 }
