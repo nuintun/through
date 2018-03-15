@@ -9,16 +9,13 @@
 const Stream = require('stream');
 const Transform = Stream.Transform;
 
-const undef = void 0;
-const toString = Object.prototype.toString;
-
 /**
  * @function isFunction
  * @param {any} value
  * @returns {boolean}
  */
 function isFunction(value) {
-  return toString.call(value) === '[object Function]';
+  return typeof value === 'function';
 }
 
 /**
@@ -32,55 +29,55 @@ function noop(chunk, encoding, next) {
   next(null, chunk);
 }
 
-/**
- * @class DestroyableTransform
- */
-class DestroyableTransform extends Transform {
-  /**
-   * @constructor
-   * @param {Object} options
-   */
-  constructor(options) {
-    super(options);
+const undef = void 0;
+// Is destroyable Transform
+const destroyable = isFunction(Transform.prototype.destroy);
+const DestroyableTransform = destroyable
+  ? Transform
+  : class extends Transform {
+      /**
+       * @constructor
+       * @param {Object} options
+       */
+      constructor(options) {
+        super(options);
 
-    this._destroyed = false;
-  }
+        this._destroyed = false;
+      }
 
-  destroy(error) {
-    if (this._destroyed) return;
+      /**
+       * @private
+       * @method _destroy
+       * @param {any} error
+       * @param {Function} callback
+       */
+      _destroy(error, callback) {
+        if (this._destroyed) return;
 
-    this._destroyed = true;
+        this._destroyed = true;
 
-    process.nextTick(() => {
-      if (error) this.emit('error', error);
+        process.nextTick(() => {
+          if (error) {
+            if (callback) {
+              callback();
+            } else {
+              this.emit('error', error);
+            }
+          }
 
-      this.emit('close');
-    });
-  }
-}
+          this.emit('close');
+        });
+      }
 
-/**
- * @function through
- * @description Create a new export function,
- *  used by both the main export,
- *  contains common logic for dealing with arguments
- * @param {Function} construct
- * @returns {Function}
- */
-function through(construct) {
-  return (options, transform, flush) => {
-    if (isFunction(options)) {
-      flush = transform;
-      transform = options;
-      options = {};
-    }
-
-    if (!isFunction(transform)) transform = noop;
-    if (!isFunction(flush)) flush = null;
-
-    return construct(options || {}, transform, flush);
-  };
-}
+      /**
+       * @function destroy
+       * @param {any} error
+       * @param {Function} callback
+       */
+      destroy(error, callback) {
+        this._destroy(error, callback);
+      }
+    };
 
 /**
  * @function through
@@ -89,7 +86,21 @@ function through(construct) {
  * @param {Function} flush
  * @returns {Transform}
  */
-module.exports = through((options, transform, flush) => {
+module.exports = function(options, transform, flush, destroy) {
+  if (isFunction(options)) {
+    flush = transform;
+    transform = options;
+    options = {};
+  } else if (!isFunction(transform)) {
+    transform = noop;
+  }
+
+  if (!isFunction(flush)) flush = null;
+
+  if (!isFunction(destroy)) destroy = null;
+
+  options = options || {};
+
   if (options.objectMode === undef) {
     options.objectMode = true;
   }
@@ -103,6 +114,7 @@ module.exports = through((options, transform, flush) => {
   stream._transform = transform;
 
   if (flush) stream._flush = flush;
+  if (destroy) stream._destroy = destroy;
 
   return stream;
-});
+};
