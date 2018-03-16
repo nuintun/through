@@ -86,7 +86,7 @@ const DestroyableTransform = destroyable
  * @param {Function} flush
  * @returns {Transform}
  */
-module.exports = function(options, transform, flush, destroy) {
+function through(options, transform, flush, destroy) {
   if (isFunction(options)) {
     flush = transform;
     transform = options;
@@ -117,4 +117,6 @@ module.exports = function(options, transform, flush, destroy) {
   if (destroy) stream._destroy = destroy;
 
   return stream;
-};
+}
+
+module.exports = through;
