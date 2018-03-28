@@ -6,8 +6,7 @@
 
 'use strict';
 
-const Stream = require('stream');
-const Transform = Stream.Transform;
+const { Transform } = require('stream');
 
 /**
  * @function isFunction
@@ -29,7 +28,6 @@ function noop(chunk, encoding, next) {
   next(null, chunk);
 }
 
-const undef = void 0;
 // Is destroyable Transform
 const destroyable = isFunction(Transform.prototype.destroy);
 const DestroyableTransform = destroyable
@@ -86,7 +84,7 @@ const DestroyableTransform = destroyable
  * @param {Function} flush
  * @returns {Transform}
  */
-function through(options, transform, flush, destroy) {
+module.exports = function through(options, transform, flush, destroy) {
   if (isFunction(options)) {
     flush = transform;
     transform = options;
@@ -96,18 +94,12 @@ function through(options, transform, flush, destroy) {
   }
 
   if (!isFunction(flush)) flush = null;
-
   if (!isFunction(destroy)) destroy = null;
 
   options = options || {};
 
-  if (options.objectMode === undef) {
-    options.objectMode = true;
-  }
-
-  if (options.highWaterMark === undef) {
-    options.highWaterMark = 16;
-  }
+  if (options.objectMode === undefined) options.objectMode = true;
+  if (options.highWaterMark === undefined) options.highWaterMark = 16;
 
   const stream = new DestroyableTransform(options);
 
@@ -117,6 +109,4 @@ function through(options, transform, flush, destroy) {
   if (destroy) stream._destroy = destroy;
 
   return stream;
-}
-
-module.exports = through;
+};
